@@ -1,0 +1,19 @@
+{
+    "name": "star/collection",
+    "description": "Collection utility lib",
+    "minimum-stability": "stable",
+    "authors": [
+        {
+            "name": "Yannick Voyer",
+            "email": "email@example.com"
+        }
+    ],
+    "autoload": {
+        "psr-0": {
+            "": ["lib", "tests"]
+        }
+    },
+    "require": {
+        "phpunit/phpunit": "3.7.*"
+    }
+}

@@ -5,18 +5,19 @@
  * (c) Yannick Voyer (http://github.com/yvoyer)
  */
 
-namespace tests;
+namespace tests\Star\Component\Collection;
 
 use Star\Component\Collection\TypedCollection;
+use tests\Star\Component\StarCollectionTestCase;
 
 /**
  * Class TypedCollectionTest
  *
  * @author  Yannick Voyer (http://github.com/yvoyer)
  *
- * @package tests
+ * @package tests\Star\Component\Collection
  */
-class TypedCollectionTest extends \PHPUnit_Framework_TestCase
+class TypedCollectionTest extends StarCollectionTestCase
 {
     /**
      * @var TypedCollection
@@ -26,6 +27,11 @@ class TypedCollectionTest extends \PHPUnit_Framework_TestCase
     public function setUp()
     {
         $this->collection = new TypedCollection('\stdClass');
+    }
+
+    public function testShouldBeACollection()
+    {
+        $this->assertInstanceOfStarCollection($this->collection);
     }
 
     /**

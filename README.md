@@ -2,6 +2,16 @@
 
 Library that offer multiple implementations of collection.
 
+## Installation
+
+To install the package using [composer] (https://getcomposer.org/), you just need to add the following lines to your `composer.json` file.
+
+    ...
+    "require": {
+        "star/collection": "dev-master"
+    }
+    ...
+
 ## Supported collection
 
 

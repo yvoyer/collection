@@ -16,7 +16,7 @@ use Traversable;
  *
  * @package Star\Component\Collection
  */
-class ArrayCollection implements \Countable, \IteratorAggregate
+class ArrayCollection implements Collection
 {
     /**
      * @var array

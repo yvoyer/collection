@@ -5,18 +5,19 @@
  * (c) Yannick Voyer (http://github.com/yvoyer)
  */
 
-namespace tests;
+namespace tests\Star\Component\Collection;
 
 use Star\Component\Collection\ArrayCollection;
+use tests\Star\Component\StarCollectionTestCase;
 
 /**
  * Class ArrayCollectionTest
  *
  * @author  Yannick Voyer (http://github.com/yvoyer)
  *
- * @package tests
+ * @package tests\Star\Component\Collection
  */
-class ArrayCollectionTest extends \PHPUnit_Framework_TestCase
+class ArrayCollectionTest extends StarCollectionTestCase
 {
     /**
      * @var ArrayCollection
@@ -26,6 +27,11 @@ class ArrayCollectionTest extends \PHPUnit_Framework_TestCase
     public function setUp()
     {
         $this->collection = new ArrayCollection();
+    }
+
+    public function testShouldBeACollection()
+    {
+        $this->assertInstanceOfStarCollection($this->collection);
     }
 
     public function testShouldAddElements()

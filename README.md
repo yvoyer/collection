@@ -35,6 +35,16 @@ Usage:
      * 3
      */
 
+### Enumeration
+
+Wrap an immutable array of values in an object. Ensure that any value passed to the enumeration is supported by the instance.
+
+    $enumeration = new Enumeration(array(1,2,3));
+    $enumeration->getSelected(); // returns null
+    $enumeration->select(2);
+    $enumeration->getSelected(); // returns 2
+    $enumeration->select('invalid'); // Throw Exception
+
 ### Typed Collection
 
 Encapsulate the constraint to add a specific class type.

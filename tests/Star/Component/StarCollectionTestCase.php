@@ -19,9 +19,9 @@ class StarCollectionTestCase extends \PHPUnit_Framework_TestCase
     /**
      * @param $object
      */
-    protected function assertInstanceOfStarCollection($object)
+    protected function assertInstanceOfCollection($object)
     {
-        $this->assertInstanceOf('Star\Component\Collection\Collection', $object);
+        $this->assertInstanceOf('Doctrine\Common\Collections\Collection', $object);
     }
 }
  

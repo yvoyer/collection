@@ -8,32 +8,13 @@ To install the package using [composer] (https://getcomposer.org/), you just nee
 
     ...
     "require": {
-        "star/collection": "dev-master"
+        "star/collection": "~1.0"
     }
     ...
 
 ## Supported collection
 
-
-### ArrayCollection
-
-Wraps the array behind a class to control what can be added and what can't.
-
-Usage:
-
-    $collection = new ArrayCollection();
-    $collection->add(2);
-    $collection->add(3);
-
-    foreach ($collection as $element) {
-        echo $element;
-    }
-
-    /**
-     * Print
-     * 2
-     * 3
-     */
+This package can be used in conjunction with [doctrine/collections](https://github.com/doctrine/collections) as an added functionality.
 
 ### Enumeration
 

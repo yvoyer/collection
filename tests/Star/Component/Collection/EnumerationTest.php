@@ -16,6 +16,8 @@ use tests\Star\Component\StarCollectionTestCase;
  * @author  Yannick Voyer (http://github.com/yvoyer)
  *
  * @package tests\Star\Component\Collection
+ *
+ * @since 1.0.0
  */
 class EnumerationTest extends StarCollectionTestCase
 {
@@ -34,11 +36,6 @@ class EnumerationTest extends StarCollectionTestCase
     public function setUp()
     {
         $this->collection = new Enumeration($this->values);
-    }
-
-    public function testShouldBeACollection()
-    {
-        $this->assertInstanceOfStarCollection($this->collection);
     }
 
     /**

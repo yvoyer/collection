@@ -17,8 +17,10 @@ use Traversable;
  * @author  Yannick Voyer (http://github.com/yvoyer)
  *
  * @package Star\Component\Collection
+ *
+ * @since 1.0.0
  */
-class Enumeration implements Collection
+class Enumeration implements \Countable, \IteratorAggregate
 {
     /**
      * @var array

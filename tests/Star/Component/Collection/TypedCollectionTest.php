@@ -1,12 +1,13 @@
 <?php
 /**
  * This file is part of the collection.local project.
- * 
+ *
  * (c) Yannick Voyer (http://github.com/yvoyer)
  */
 
 namespace tests\Star\Component\Collection;
 
+use Doctrine\Common\Collections\Criteria;
 use Star\Component\Collection\TypedCollection;
 use tests\Star\Component\StarCollectionTestCase;
 
@@ -31,6 +32,11 @@ class TypedCollectionTest extends StarCollectionTestCase
      */
     private $element;
 
+    /**
+     * @var string
+     */
+    const COLLECTION_TYPE = 'Star\Component\Collection\TypedCollection';
+
     public function setUp()
     {
         $this->element = new \stdClass();
@@ -42,6 +48,11 @@ class TypedCollectionTest extends StarCollectionTestCase
         $this->assertInstanceOfCollection($this->collection);
     }
 
+    public function testShouldBeAbleToBuildCollectionInternallyWithoutTheType()
+    {
+        $this->assertInstanceOf(self::COLLECTION_TYPE, $this->collection->matching(new Criteria()));
+    }
+
     /**
      * @expectedException        \Star\Component\Collection\Exception\InvalidArgumentException
      * @expectedExceptionMessage The collection only supports adding \stdClass.
@@ -49,6 +60,33 @@ class TypedCollectionTest extends StarCollectionTestCase
     public function testShouldThrowExceptionWhenTryingToAddNonSupportedType()
     {
         $this->collection->add(1);
+    }
+
+    /**
+     * @expectedException        \Star\Component\Collection\Exception\InvalidArgumentException
+     * @expectedExceptionMessage The collection only supports adding \stdClass.
+     */
+    public function testShouldThrowExceptionWhenTryingToAddNonSupportedTypeAsAnArray()
+    {
+        $this->collection[] = 1;
+    }
+
+    /**
+     * @expectedException        \Star\Component\Collection\Exception\InvalidArgumentException
+     * @expectedExceptionMessage The collection only supports adding \stdClass.
+     */
+    public function testShouldThrowExceptionWhenTryingToSetNonSupportedType()
+    {
+        $this->collection->set(0, 1);
+    }
+
+    /**
+     * @expectedException        \Star\Component\Collection\Exception\InvalidArgumentException
+     * @expectedExceptionMessage The collection only supports adding \stdClass.
+     */
+    public function testShouldThrowExceptionWhenTryingCreateCollectionWithNonSupportedType()
+    {
+        new TypedCollection('\stdClass', array(3));
     }
 
     public function testShouldAddTheSupportedObject()
@@ -261,5 +299,121 @@ class TypedCollectionTest extends StarCollectionTestCase
         $this->assertFalse(isset($this->collection[0]));
         $this->assertFalse(isset($this->collection['index']));
     }
+
+    /**
+     * @depends testShouldAddTheSupportedObject
+     */
+    public function testShouldSliceTheCollection()
+    {
+        $this->collection->add($first = new \stdClass());
+        $this->collection->add($second = new \stdClass());
+        $this->collection->add($third = new \stdClass());
+        $this->collection->add($fourth = new \stdClass());
+        $this->collection->add($fifth = new \stdClass());
+
+        $expected = array(
+            1 => $second,
+            2 => $third,
+            3 => $fourth,
+        );
+        $this->assertSame($expected, $this->collection->slice(1, 3));
+        $this->assertCount(5, $this->collection);
+    }
+
+    /**
+     * @depends testShouldAddTheSupportedObject
+     */
+    public function testShouldFilterTheCollectionBasedOnClosure()
+    {
+        $this->collection->add($first = (object) array('id' => 1));
+        $this->collection->add($second = (object) array('id' => 2));
+        $this->collection->add($third = (object) array('id' => 2));
+        $this->collection->add($fourth = (object) array('id' => 2));
+        $this->collection->add($fifth = (object) array('id' => 3));
+
+        $closure = function ($element) {
+            return ($element->id === 2) ? $element : null;
+        };
+
+        $expected = array(
+            0 => $second,
+            1 => $third,
+            2 => $fourth,
+        );
+
+        $filteredCollection = $this->collection->filter($closure);
+        $this->assertInstanceOf(self::COLLECTION_TYPE, $filteredCollection);
+        $this->assertSame($expected, $filteredCollection->toArray());
+        $this->assertCount(5, $this->collection);
+    }
+
+    /**
+     * @depends testShouldAddTheSupportedObject
+     */
+    public function testShouldReturnWhetherTheElementExists()
+    {
+        $this->collection->add($element = new \stdClass());
+
+        $this->assertTrue($this->collection->exists(function () { return true; }));
+        $this->assertFalse($this->collection->exists(function () {}));
+    }
+
+    /**
+     * @depends testShouldAddTheSupportedObject
+     */
+    public function testShouldReturnWhetherTheClosureApplyToAllElements()
+    {
+        $this->collection->add($element = new \stdClass());
+
+        $this->assertTrue($this->collection->forAll(function () { return true; }));
+        $this->assertFalse($this->collection->forAll(function () {}));
+    }
+
+    /**
+     * @depends testShouldAddTheSupportedObject
+     */
+    public function testShouldMapReturnTheMapOfElementReturnedByClosure()
+    {
+        $this->collection->add($first = new \stdClass());
+        $this->collection->add($second = (object) array('id' => 1));
+        $this->collection->add($third = new \stdClass());
+
+        $expected = array(1 => $second);
+        $closure = function ($element) {
+            if (isset($element->id)) return $element;
+        };
+        $newCollection = $this->collection->map($closure);
+        $this->assertInstanceOf(self::COLLECTION_TYPE, $newCollection);
+        $this->assertSame($expected, $newCollection->toArray());
+        $this->assertCount(3, $this->collection);
+        $this->assertContainsOnlyInstancesOf('stdClass', $this->collection);
+    }
+
+    /**
+     * @depends testShouldAddTheSupportedObject
+     */
+    public function testShouldPartitionTheCollectionInTwo()
+    {
+        $this->collection->add($first = new \stdClass());
+        $this->collection->add($second = (object) array('id' => 1));
+        $this->collection->add($third = new \stdClass());
+
+        $closure = function ($key, $element) {
+            if (isset($element->id)) return $element;
+        };
+        $actual = $this->collection->partition($closure);
+        $this->assertCount(2, $actual);
+        $this->assertContainsOnlyInstancesOf(self::COLLECTION_TYPE, $actual);
+        $this->assertSame(array($second), $actual[0]->toArray());
+        $this->assertSame(array($first, $third), $actual[1]->toArray());
+    }
+
+    /**
+     * @expectedException        \Star\Component\Collection\Exception\InvalidArgumentException
+     * @expectedExceptionMessage The class 'qwewq' must exists.
+     */
+    public function testShouldThrowExceptionWhenClassDoNotExists()
+    {
+        new TypedCollection('qwewq');
+    }
 }
- 

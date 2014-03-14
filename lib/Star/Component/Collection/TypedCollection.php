@@ -1,7 +1,7 @@
 <?php
 /**
  * This file is part of the collection.local project.
- * 
+ *
  * (c) Yannick Voyer (http://github.com/yvoyer)
  */
 
@@ -10,8 +10,9 @@ namespace Star\Component\Collection;
 use Closure;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+use Doctrine\Common\Collections\Criteria;
+use Doctrine\Common\Collections\Selectable;
 use Star\Component\Collection\Exception\InvalidArgumentException;
-use Traversable;
 
 /**
  * Class TypedCollection
@@ -22,7 +23,7 @@ use Traversable;
  *
  * @since 1.0.0
  */
-class TypedCollection implements Collection
+class TypedCollection implements Collection, Selectable
 {
     /**
      * @var string
@@ -32,15 +33,23 @@ class TypedCollection implements Collection
     /**
      * @var ArrayCollection
      */
-    private $data;
+    private $collection;
 
     /**
      * @param string $type
+     * @param array  $elements
      */
-    public function __construct($type)
+    public function __construct($type, array $elements = array())
     {
+        if (false === class_exists($type)) {
+            throw new InvalidArgumentException("The class '{$type}' must exists.");
+        }
+
         $this->type = $type;
-        $this->data = new ArrayCollection();
+        $this->collection = new ArrayCollection();
+        foreach ($elements as $element) {
+            $this->add($element);
+        }
     }
 
     /**
@@ -52,11 +61,9 @@ class TypedCollection implements Collection
      */
     public function add($element)
     {
-        if (false === $element instanceof $this->type) {
-            throw new InvalidArgumentException("The collection only supports adding {$this->type}.");
-        }
+        $this->assertElementIsOfType($element);
 
-        return $this->data->add($element);
+        return $this->collection->add($element);
     }
 
     /**
@@ -70,19 +77,19 @@ class TypedCollection implements Collection
      */
     public function count()
     {
-        return $this->data->count();
+        return $this->collection->count();
     }
 
     /**
      * (PHP 5 &gt;= 5.0.0)<br/>
      * Retrieve an external iterator
      * @link http://php.net/manual/en/iteratoraggregate.getiterator.php
-     * @return Traversable An instance of an object implementing <b>Iterator</b> or
+     * @return \Traversable An instance of an object implementing <b>Iterator</b> or
      * <b>Traversable</b>
      */
     public function getIterator()
     {
-        return $this->data->getIterator();
+        return $this->collection->getIterator();
     }
 
     /**
@@ -92,7 +99,7 @@ class TypedCollection implements Collection
      */
     public function clear()
     {
-        $this->data->clear();
+        $this->collection->clear();
     }
 
     /**
@@ -105,7 +112,7 @@ class TypedCollection implements Collection
      */
     public function contains($element)
     {
-        return $this->data->contains($element);
+        return $this->collection->contains($element);
     }
 
     /**
@@ -115,7 +122,7 @@ class TypedCollection implements Collection
      */
     public function isEmpty()
     {
-        return $this->data->isEmpty();
+        return $this->collection->isEmpty();
     }
 
     /**
@@ -127,7 +134,7 @@ class TypedCollection implements Collection
      */
     public function remove($key)
     {
-        return $this->data->remove($key);
+        return $this->collection->remove($key);
     }
 
     /**
@@ -139,7 +146,7 @@ class TypedCollection implements Collection
      */
     public function removeElement($element)
     {
-        return $this->data->removeElement($element);
+        return $this->collection->removeElement($element);
     }
 
     /**
@@ -152,7 +159,7 @@ class TypedCollection implements Collection
      */
     public function containsKey($key)
     {
-        return $this->data->containsKey($key);
+        return $this->collection->containsKey($key);
     }
 
     /**
@@ -164,7 +171,7 @@ class TypedCollection implements Collection
      */
     public function get($key)
     {
-        return $this->data->get($key);
+        return $this->collection->get($key);
     }
 
     /**
@@ -175,7 +182,7 @@ class TypedCollection implements Collection
      */
     public function getKeys()
     {
-        return $this->data->getKeys();
+        return $this->collection->getKeys();
     }
 
     /**
@@ -186,7 +193,7 @@ class TypedCollection implements Collection
      */
     public function getValues()
     {
-        return $this->data->getValues();
+        return $this->collection->getValues();
     }
 
     /**
@@ -199,7 +206,9 @@ class TypedCollection implements Collection
      */
     public function set($key, $value)
     {
-        $this->data->set($key, $value);
+        $this->assertElementIsOfType($value);
+
+        $this->collection->set($key, $value);
     }
 
     /**
@@ -209,7 +218,7 @@ class TypedCollection implements Collection
      */
     public function toArray()
     {
-        return $this->data->toArray();
+        return $this->collection->toArray();
     }
 
     /**
@@ -219,7 +228,7 @@ class TypedCollection implements Collection
      */
     public function first()
     {
-        return $this->data->first();
+        return $this->collection->first();
     }
 
     /**
@@ -229,7 +238,7 @@ class TypedCollection implements Collection
      */
     public function last()
     {
-        return $this->data->last();
+        return $this->collection->last();
     }
 
     /**
@@ -239,7 +248,7 @@ class TypedCollection implements Collection
      */
     public function key()
     {
-        return $this->data->key();
+        return $this->collection->key();
     }
 
     /**
@@ -249,7 +258,7 @@ class TypedCollection implements Collection
      */
     public function current()
     {
-        return $this->data->current();
+        return $this->collection->current();
     }
 
     /**
@@ -259,7 +268,7 @@ class TypedCollection implements Collection
      */
     public function next()
     {
-        return $this->data->next();
+        return $this->collection->next();
     }
 
     /**
@@ -271,7 +280,7 @@ class TypedCollection implements Collection
      */
     public function exists(Closure $p)
     {
-        throw new \RuntimeException('Method ' . __CLASS__ . '::exists() not implemented yet.');
+        return $this->collection->exists($p);
     }
 
     /**
@@ -284,7 +293,9 @@ class TypedCollection implements Collection
      */
     public function filter(Closure $p)
     {
-        throw new \RuntimeException('Method ' . __CLASS__ . '::filter() not implemented yet.');
+        $elements = $this->collection->filter($p)->toArray();
+
+        return new static($this->type, $elements);
     }
 
     /**
@@ -296,7 +307,7 @@ class TypedCollection implements Collection
      */
     public function forAll(Closure $p)
     {
-        throw new \RuntimeException('Method ' . __CLASS__ . '::forAll() not implemented yet.');
+        return $this->collection->forAll($p);
     }
 
     /**
@@ -309,7 +320,17 @@ class TypedCollection implements Collection
      */
     public function map(Closure $func)
     {
-        throw new \RuntimeException('Method ' . __CLASS__ . '::map() not implemented yet.');
+        $elements = $this->collection->map($func)->toArray();
+        $newCollection = new TypedCollection($this->type);
+        foreach ($elements as $key => $element) {
+            try {
+                $newCollection->set($key, $element);
+            } catch (InvalidArgumentException $e) {
+                // do nothing, because the mapped item is not instance of type
+            }
+        }
+
+        return $newCollection;
     }
 
     /**
@@ -324,7 +345,12 @@ class TypedCollection implements Collection
      */
     public function partition(Closure $p)
     {
-        throw new \RuntimeException('Method ' . __CLASS__ . '::partition() not implemented yet.');
+        $partition = $this->collection->partition($p);
+
+        return array(
+            new static($this->type, $partition[0]->toArray()),
+            new static($this->type, $partition[1]->toArray()),
+        );
     }
 
     /**
@@ -338,7 +364,7 @@ class TypedCollection implements Collection
      */
     public function indexOf($element)
     {
-        return $this->data->indexOf($element);
+        return $this->collection->indexOf($element);
     }
 
     /**
@@ -355,7 +381,7 @@ class TypedCollection implements Collection
      */
     public function slice($offset, $length = null)
     {
-        throw new \RuntimeException('Method ' . __CLASS__ . '::slice() not implemented yet.');
+        return $this->collection->slice($offset, $length);
     }
 
     /**
@@ -372,7 +398,7 @@ class TypedCollection implements Collection
      */
     public function offsetExists($offset)
     {
-        return isset($this->data[$offset]);
+        return isset($this->collection[$offset]);
     }
 
     /**
@@ -386,7 +412,7 @@ class TypedCollection implements Collection
      */
     public function offsetGet($offset)
     {
-        return $this->data[$offset];
+        return $this->collection[$offset];
     }
 
     /**
@@ -403,7 +429,8 @@ class TypedCollection implements Collection
      */
     public function offsetSet($offset, $value)
     {
-        $this->data[$offset] = $value;
+        $this->assertElementIsOfType($value);
+        $this->collection[$offset] = $value;
     }
 
     /**
@@ -417,7 +444,32 @@ class TypedCollection implements Collection
      */
     public function offsetUnset($offset)
     {
-        unset($this->data[$offset]);
+        unset($this->collection[$offset]);
+    }
+
+    /**
+     * @param $element
+     * @throws Exception\InvalidArgumentException
+     */
+    private function assertElementIsOfType($element)
+    {
+        if (false === $element instanceof $this->type) {
+            throw new InvalidArgumentException("The collection only supports adding {$this->type}.");
+        }
+    }
+
+    /**
+     * Selects all elements from a selectable that match the expression and
+     * returns a new collection containing these elements.
+     *
+     * @param Criteria $criteria
+     *
+     * @return Collection
+     */
+    function matching(Criteria $criteria)
+    {
+        $elements = $this->collection->matching($criteria)->toArray();
+
+        return new static($this->type, $elements);
     }
 }
- 

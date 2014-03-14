@@ -8,13 +8,11 @@ To install the package using [composer] (https://getcomposer.org/), you just nee
 
     ...
     "require": {
-        "star/collection": "~1.0"
+        "star/collection": "~1.1"
     }
     ...
 
 ## Supported collection
-
-This package can be used in conjunction with [doctrine/collections](https://github.com/doctrine/collections) as an added functionality.
 
 ### Enumeration
 
@@ -35,3 +33,5 @@ Usage:
     $collection = new TypedCollection('\stdClass');
     $collection->add(2); // Throw exception
     $collection->add(new \stdClass()); // works
+
+Note: This class can be used in conjunction with [doctrine/collections](https://github.com/doctrine/collections) as an added functionality.

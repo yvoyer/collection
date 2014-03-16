@@ -410,10 +410,17 @@ class TypedCollectionTest extends StarCollectionTestCase
 
     /**
      * @expectedException        \Star\Component\Collection\Exception\InvalidArgumentException
-     * @expectedExceptionMessage The class 'qwewq' must exists.
+     * @expectedExceptionMessage The class/interface 'qwewq' must exists.
      */
     public function testShouldThrowExceptionWhenClassDoNotExists()
     {
         new TypedCollection('qwewq');
+    }
+
+    public function testShouldSupportInterface()
+    {
+        $this->collection = new TypedCollection('\Countable');
+        $this->collection->add($this->getMock('\Countable'));
+        $this->assertCount(1, $this->collection);
     }
 }

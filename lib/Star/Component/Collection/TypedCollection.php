@@ -42,7 +42,9 @@ class TypedCollection implements Collection, Selectable
     public function __construct($type, array $elements = array())
     {
         if (false === class_exists($type)) {
-            throw new InvalidArgumentException("The class '{$type}' must exists.");
+            if (false === interface_exists($type)) {
+                throw new InvalidArgumentException("The class/interface '{$type}' must exists.");
+            }
         }
 
         $this->type = $type;

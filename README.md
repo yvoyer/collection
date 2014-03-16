@@ -34,4 +34,8 @@ Usage:
     $collection->add(2); // Throw exception
     $collection->add(new \stdClass()); // works
 
+    $collection = new TypedCollection('\Countable');
+    $collection->add(2); // Throw exception
+    $collection->add(new ClassThatImplementsCountable()); // works
+
 Note: This class can be used in conjunction with [doctrine/collections](https://github.com/doctrine/collections) as an added functionality.

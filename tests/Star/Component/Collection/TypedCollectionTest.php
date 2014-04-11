@@ -423,4 +423,42 @@ class TypedCollectionTest extends StarCollectionTestCase
         $this->collection->add($this->getMock('\Countable'));
         $this->assertCount(1, $this->collection);
     }
+
+    /**
+     * @depends testShouldAddTheSupportedObject
+     *
+     * @expectedException        \RuntimeException
+     * @expectedExceptionMessage The type should be defined.
+     */
+    public function testShouldThrowExceptionWhenTypeNotConfigured()
+    {
+        new TypedCollection();
+    }
+
+    public function testShouldEnableEasyExtension()
+    {
+        $this->collection = new GetTypeDefinitionCollection();
+        $this->collection->add(new \stdClass());
+        $this->assertCount(1, $this->collection);
+    }
+
+    public function testShouldAddElements()
+    {
+        $elements = array(
+            new \stdClass(),
+            new \stdClass(),
+        );
+
+        $this->assertCount(0, $this->collection);
+        $this->collection->addElements($elements);
+        $this->assertCount(2, $this->collection);
+    }
+}
+
+class GetTypeDefinitionCollection extends TypedCollection
+{
+    protected function getType()
+    {
+        return '\stdClass';
+    }
 }

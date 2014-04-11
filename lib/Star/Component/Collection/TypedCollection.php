@@ -37,18 +37,23 @@ class TypedCollection implements Collection, Selectable
 
     /**
      * @param string $type
-     * @param array  $elements
+     * @param array $elements
+     *
+     * @throws \RuntimeException
+     * @throws Exception\InvalidArgumentException
      */
-    public function __construct($type, array $elements = array())
+    public function __construct($type = null, array $elements = array())
     {
-        if (false === class_exists($type)) {
-            if (false === interface_exists($type)) {
-                throw new InvalidArgumentException("The class/interface '{$type}' must exists.");
-            }
-        }
+        $this->assertTypeIsValid($type);
 
-        $this->type = $type;
-        $this->collection = new ArrayCollection();
+        $this->addElements($elements);
+    }
+
+    /**
+     * @param array $elements
+     */
+    public function addElements(array $elements)
+    {
         foreach ($elements as $element) {
             $this->add($element);
         }
@@ -65,7 +70,7 @@ class TypedCollection implements Collection, Selectable
     {
         $this->assertElementIsOfType($element);
 
-        return $this->collection->add($element);
+        return $this->getCollection()->add($element);
     }
 
     /**
@@ -79,7 +84,7 @@ class TypedCollection implements Collection, Selectable
      */
     public function count()
     {
-        return $this->collection->count();
+        return $this->getCollection()->count();
     }
 
     /**
@@ -91,7 +96,7 @@ class TypedCollection implements Collection, Selectable
      */
     public function getIterator()
     {
-        return $this->collection->getIterator();
+        return $this->getCollection()->getIterator();
     }
 
     /**
@@ -101,7 +106,7 @@ class TypedCollection implements Collection, Selectable
      */
     public function clear()
     {
-        $this->collection->clear();
+        $this->getCollection()->clear();
     }
 
     /**
@@ -114,7 +119,7 @@ class TypedCollection implements Collection, Selectable
      */
     public function contains($element)
     {
-        return $this->collection->contains($element);
+        return $this->getCollection()->contains($element);
     }
 
     /**
@@ -124,7 +129,7 @@ class TypedCollection implements Collection, Selectable
      */
     public function isEmpty()
     {
-        return $this->collection->isEmpty();
+        return $this->getCollection()->isEmpty();
     }
 
     /**
@@ -136,7 +141,7 @@ class TypedCollection implements Collection, Selectable
      */
     public function remove($key)
     {
-        return $this->collection->remove($key);
+        return $this->getCollection()->remove($key);
     }
 
     /**
@@ -148,7 +153,7 @@ class TypedCollection implements Collection, Selectable
      */
     public function removeElement($element)
     {
-        return $this->collection->removeElement($element);
+        return $this->getCollection()->removeElement($element);
     }
 
     /**
@@ -161,7 +166,7 @@ class TypedCollection implements Collection, Selectable
      */
     public function containsKey($key)
     {
-        return $this->collection->containsKey($key);
+        return $this->getCollection()->containsKey($key);
     }
 
     /**
@@ -173,7 +178,7 @@ class TypedCollection implements Collection, Selectable
      */
     public function get($key)
     {
-        return $this->collection->get($key);
+        return $this->getCollection()->get($key);
     }
 
     /**
@@ -184,7 +189,7 @@ class TypedCollection implements Collection, Selectable
      */
     public function getKeys()
     {
-        return $this->collection->getKeys();
+        return $this->getCollection()->getKeys();
     }
 
     /**
@@ -195,7 +200,7 @@ class TypedCollection implements Collection, Selectable
      */
     public function getValues()
     {
-        return $this->collection->getValues();
+        return $this->getCollection()->getValues();
     }
 
     /**
@@ -210,7 +215,7 @@ class TypedCollection implements Collection, Selectable
     {
         $this->assertElementIsOfType($value);
 
-        $this->collection->set($key, $value);
+        $this->getCollection()->set($key, $value);
     }
 
     /**
@@ -220,7 +225,7 @@ class TypedCollection implements Collection, Selectable
      */
     public function toArray()
     {
-        return $this->collection->toArray();
+        return $this->getCollection()->toArray();
     }
 
     /**
@@ -230,7 +235,7 @@ class TypedCollection implements Collection, Selectable
      */
     public function first()
     {
-        return $this->collection->first();
+        return $this->getCollection()->first();
     }
 
     /**
@@ -240,7 +245,7 @@ class TypedCollection implements Collection, Selectable
      */
     public function last()
     {
-        return $this->collection->last();
+        return $this->getCollection()->last();
     }
 
     /**
@@ -250,7 +255,7 @@ class TypedCollection implements Collection, Selectable
      */
     public function key()
     {
-        return $this->collection->key();
+        return $this->getCollection()->key();
     }
 
     /**
@@ -260,7 +265,7 @@ class TypedCollection implements Collection, Selectable
      */
     public function current()
     {
-        return $this->collection->current();
+        return $this->getCollection()->current();
     }
 
     /**
@@ -270,7 +275,7 @@ class TypedCollection implements Collection, Selectable
      */
     public function next()
     {
-        return $this->collection->next();
+        return $this->getCollection()->next();
     }
 
     /**
@@ -282,7 +287,7 @@ class TypedCollection implements Collection, Selectable
      */
     public function exists(Closure $p)
     {
-        return $this->collection->exists($p);
+        return $this->getCollection()->exists($p);
     }
 
     /**
@@ -295,9 +300,9 @@ class TypedCollection implements Collection, Selectable
      */
     public function filter(Closure $p)
     {
-        $elements = $this->collection->filter($p)->toArray();
+        $elements = $this->getCollection()->filter($p)->toArray();
 
-        return new static($this->type, $elements);
+        return $this->create($elements);
     }
 
     /**
@@ -309,7 +314,7 @@ class TypedCollection implements Collection, Selectable
      */
     public function forAll(Closure $p)
     {
-        return $this->collection->forAll($p);
+        return $this->getCollection()->forAll($p);
     }
 
     /**
@@ -322,7 +327,7 @@ class TypedCollection implements Collection, Selectable
      */
     public function map(Closure $func)
     {
-        $elements = $this->collection->map($func)->toArray();
+        $elements = $this->getCollection()->map($func)->toArray();
         $newCollection = new TypedCollection($this->type);
         foreach ($elements as $key => $element) {
             try {
@@ -347,11 +352,11 @@ class TypedCollection implements Collection, Selectable
      */
     public function partition(Closure $p)
     {
-        $partition = $this->collection->partition($p);
+        $partition = $this->getCollection()->partition($p);
 
         return array(
-            new static($this->type, $partition[0]->toArray()),
-            new static($this->type, $partition[1]->toArray()),
+            $this->create($partition[0]->toArray()),
+            $this->create($partition[1]->toArray()),
         );
     }
 
@@ -366,7 +371,7 @@ class TypedCollection implements Collection, Selectable
      */
     public function indexOf($element)
     {
-        return $this->collection->indexOf($element);
+        return $this->getCollection()->indexOf($element);
     }
 
     /**
@@ -383,7 +388,7 @@ class TypedCollection implements Collection, Selectable
      */
     public function slice($offset, $length = null)
     {
-        return $this->collection->slice($offset, $length);
+        return $this->getCollection()->slice($offset, $length);
     }
 
     /**
@@ -400,7 +405,7 @@ class TypedCollection implements Collection, Selectable
      */
     public function offsetExists($offset)
     {
-        return isset($this->collection[$offset]);
+        return isset($this->getCollection()[$offset]);
     }
 
     /**
@@ -414,7 +419,7 @@ class TypedCollection implements Collection, Selectable
      */
     public function offsetGet($offset)
     {
-        return $this->collection[$offset];
+        return $this->getCollection()[$offset];
     }
 
     /**
@@ -432,7 +437,7 @@ class TypedCollection implements Collection, Selectable
     public function offsetSet($offset, $value)
     {
         $this->assertElementIsOfType($value);
-        $this->collection[$offset] = $value;
+        $this->getCollection()[$offset] = $value;
     }
 
     /**
@@ -446,7 +451,32 @@ class TypedCollection implements Collection, Selectable
      */
     public function offsetUnset($offset)
     {
-        unset($this->collection[$offset]);
+        unset($this->getCollection()[$offset]);
+    }
+
+    /**
+     * Selects all elements from a selectable that match the expression and
+     * returns a new collection containing these elements.
+     *
+     * @param Criteria $criteria
+     *
+     * @return Collection
+     */
+    public function matching(Criteria $criteria)
+    {
+        $elements = $this->getCollection()->matching($criteria)->toArray();
+
+        return $this->create($elements);
+    }
+
+    /**
+     * Returns the Type.
+     *
+     * @return string
+     */
+    protected function getType()
+    {
+        return $this->type;
     }
 
     /**
@@ -461,17 +491,47 @@ class TypedCollection implements Collection, Selectable
     }
 
     /**
-     * Selects all elements from a selectable that match the expression and
-     * returns a new collection containing these elements.
+     * Returns an instance of this class.
      *
-     * @param Criteria $criteria
+     * @param array $elements
      *
-     * @return Collection
+     * @return static
      */
-    function matching(Criteria $criteria)
+    protected function create(array $elements)
     {
-        $elements = $this->collection->matching($criteria)->toArray();
+        return new static($this->getType(), $elements);
+    }
 
-        return new static($this->type, $elements);
+    /**
+     * @param $type
+     * @throws \RuntimeException
+     * @throws Exception\InvalidArgumentException
+     */
+    private function assertTypeIsValid($type)
+    {
+        $this->type = $type;
+        $this->type = $this->getType();
+
+        if (null === $this->type) {
+            throw new \RuntimeException('The type should be defined.');
+        }
+
+        if (false === class_exists($this->type)) {
+            if (false === interface_exists($this->type)) {
+                throw new InvalidArgumentException("The class/interface '{$this->type}' must exists.");
+            }
+        }
+    }
+
+    /**
+     * @return ArrayCollection
+     */
+    private function getCollection()
+    {
+        if (null === $this->collection) {
+            $this->collection = new ArrayCollection();
+        }
+
+        return $this->collection;
     }
 }

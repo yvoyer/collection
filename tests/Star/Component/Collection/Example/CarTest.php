@@ -23,15 +23,13 @@ class CarTest extends \PHPUnit_Framework_TestCase
 
     public function setUp()
     {
-        $this->color = $this->getMockBuilder('tests\Star\Component\Collection\Example\Color')
-            ->disableOriginalConstructor()
-            ->getMock();
+        $this->color = new Color(1);
     }
 
     public function testShouldHaveAColor()
     {
         $car = new Car('name', $this->color);
-        $this->assertSame($this->color, $car->getColor());
+        $this->assertEquals($this->color, $car->getColor());
     }
 
     public function testShouldHaveAName()

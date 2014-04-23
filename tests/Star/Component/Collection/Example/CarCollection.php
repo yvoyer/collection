@@ -23,7 +23,7 @@ class CarCollection
 
     public function __construct()
     {
-        $this->collection = new TypedCollection('tests\Star\Component\Collection\Example\Car');
+        $this->collection = new TypedCollection(Car::CLASS_NAME);
     }
 
     public function addCar(Car $car)

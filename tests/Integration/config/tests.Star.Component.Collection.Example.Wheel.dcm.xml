@@ -1,0 +1,17 @@
+<doctrine-mapping xmlns="http://doctrine-project.org/schemas/orm/doctrine-mapping"
+                  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                  xsi:schemaLocation="http://doctrine-project.org/schemas/orm/doctrine-mapping
+                    http://doctrine-project.org/schemas/orm/doctrine-mapping.xsd">
+
+    <entity name="tests\Star\Component\Collection\Example\Wheel" table="collection_wheel">
+        <id name="id" type="integer" column="id">
+            <generator strategy="IDENTITY"/>
+        </id>
+
+        <field name="size" column="size" type="integer" />
+
+        <many-to-one field="car" target-entity="tests\Star\Component\Collection\Example\Car" inversed-by="wheels">
+        </many-to-one>
+
+    </entity>
+</doctrine-mapping>

@@ -1,5 +1,9 @@
 # collection
 
+Master: [![Build Status](https://travis-ci.org/yvoyer/collection.svg?branch=master)](https://travis-ci.org/yvoyer/collection)
+
+Develop: [![Build Status](https://travis-ci.org/yvoyer/collection.svg?branch=develop)](https://travis-ci.org/yvoyer/collection)
+
 Library that offer multiple implementations of collection.
 
 ## Installation

@@ -28,11 +28,15 @@ use tests\Star\Component\Collection\Example\Wheel;
  */
 class DoctrineTest extends \PHPUnit_Framework_TestCase
 {
-    use DoctrineSetup;
+    /**
+     * @var DoctrineTestSetup
+     */
+    private static $doctrine;
 
     public static function setUpBeforeClass()
     {
-        $em = self::getEntityManagerForClass();
+        self::$doctrine = new DoctrineTestSetup();
+        $em = self::$doctrine->getEntityManager();
 
         $classes = array(
             $em->getClassMetadata(Car::CLASS_NAME),
@@ -46,7 +50,7 @@ class DoctrineTest extends \PHPUnit_Framework_TestCase
 
     public function test_should_persists_car()
     {
-        $em = $this->getEntityManager();
+        $em = self::$doctrine->getEntityManager();
 
         $newCar = new Car('name', Color::getBlue());
         $em->persist($newCar);
@@ -73,7 +77,7 @@ class DoctrineTest extends \PHPUnit_Framework_TestCase
         $car->addWheel(12);
         $car->addWheel(12);
 
-        $em = $this->getEntityManager();
+        $em = self::$doctrine->getEntityManager();
         $em->persist($car);
         $em->flush();
         $em->clear();
@@ -93,7 +97,7 @@ class DoctrineTest extends \PHPUnit_Framework_TestCase
         /**
          * @var $car Car
          */
-        $car = $this->getEntityManager()->getRepository(Car::CLASS_NAME)->find($carId);
+        $car = self::$doctrine->getEntityManager()->getRepository(Car::CLASS_NAME)->find($carId);
 
         return $car;
     }

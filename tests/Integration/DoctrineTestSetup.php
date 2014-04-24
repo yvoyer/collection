@@ -13,28 +13,28 @@ use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\Tools\Setup;
 
 /**
- * Class DoctrineSetup
+ * Class DoctrineTestSetup
  *
  * @author  Yannick Voyer (http://github.com/yvoyer)
  *
  * @package tests\Integration
  */
-trait DoctrineSetup
+class DoctrineTestSetup
 {
     /**
      * @var EntityManager
      */
-    private static $em;
+    private $em;
 
     /**
      * @var Connection
      */
-    private static $connection;
+    private $connection;
 
     /**
      * @return \Doctrine\ORM\Configuration
      */
-    protected static function getDoctrineConfiguration()
+    protected function getDoctrineConfiguration()
     {
         return Setup::createXMLMetadataConfiguration(array(__DIR__ . DIRECTORY_SEPARATOR . 'config'), true);
     }
@@ -42,7 +42,7 @@ trait DoctrineSetup
     /**
      * @return array
      */
-    protected static function getDoctrineParameters()
+    protected function getDoctrineParameters()
     {
         return array(
             'driver' => 'pdo_sqlite',
@@ -53,31 +53,23 @@ trait DoctrineSetup
     /**
      * @return EntityManager
      */
-    protected static function getEntityManagerForClass()
+    public function getEntityManager()
     {
-        if (null === self::$connection) {
-            self::$connection = DriverManager::getConnection(self::getDoctrineParameters());
+        if (null === $this->connection) {
+            $this->connection = DriverManager::getConnection($this->getDoctrineParameters());
         }
 
-        if (null === self::$em || false === self::$em->isOpen()) {
-            self::$em = EntityManager::create(self::$connection, self::getDoctrineConfiguration());
+        if (null === $this->em || false === $this->em->isOpen()) {
+            $this->em = EntityManager::create($this->connection, $this->getDoctrineConfiguration());
         }
 
-        return self::$em;
-    }
-
-    /**
-     * @return EntityManager
-     */
-    protected function getEntityManager()
-    {
-        return self::getEntityManagerForClass();
+        return $this->em;
     }
 
     /**
      * @return Connection
      */
-    protected function getDoctrineConnection()
+    public function getConnection()
     {
         return $this->getEntityManager()->getConnection();
     }

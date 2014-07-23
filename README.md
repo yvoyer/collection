@@ -12,7 +12,7 @@ To install the package using [composer] (https://getcomposer.org/), you just nee
 
     ...
     "require": {
-        "star/collection": "~1.1"
+        "star/collection": "~1.2"
     }
     ...
 

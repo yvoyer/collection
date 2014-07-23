@@ -17,5 +17,11 @@
             </cascade>
         </one-to-many>
 
+        <one-to-many field="passengers" target-entity="tests\Star\Component\Collection\Example\Passenger" mapped-by="car">
+            <cascade>
+                <cascade-persist/>
+            </cascade>
+        </one-to-many>
+
     </entity>
 </doctrine-mapping>

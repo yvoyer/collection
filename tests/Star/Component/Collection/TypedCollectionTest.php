@@ -8,6 +8,7 @@
 namespace tests\Star\Component\Collection;
 
 use Doctrine\Common\Collections\Criteria;
+use stdClass;
 use Star\Component\Collection\TypedCollection;
 use tests\Star\Component\StarCollectionTestCase;
 
@@ -409,6 +410,15 @@ class TypedCollectionTest extends StarCollectionTestCase
     }
 
     /**
+     * @ticket #17
+     */
+    public function testShouldMatchTheElementFromExtendedCollection()
+    {
+        $collection = new ExtendedStubCollection();
+        $this->assertInstanceOf(__NAMESPACE__ . '\ExtendedStubCollection', $collection->matching(new Criteria()));
+    }
+
+    /**
      * @expectedException        \Star\Component\Collection\Exception\InvalidArgumentException
      * @expectedExceptionMessage The class/interface 'qwewq' must exists.
      */
@@ -422,5 +432,410 @@ class TypedCollectionTest extends StarCollectionTestCase
         $this->collection = new TypedCollection('\Countable');
         $this->collection->add($this->getMock('\Countable'));
         $this->assertCount(1, $this->collection);
+    }
+
+    /**
+     * @ticket #17
+     */
+    public function testShouldFilterExtendedCollection()
+    {
+        $object = new \stdClass();
+        $object->id = 22;
+
+        $collection = new ExtendedStubCollection(array($object));
+        $result = $collection->findByObject($object);
+        $this->assertSame($object, $result);
+    }
+
+    /**
+     * @ticket #17
+     */
+    public function testShouldPartitionExtendedCollection()
+    {
+        $this->collection = new ExtendedStubCollection(array(
+            $first = new \stdClass(),
+            $second = (object) array('id' => 1),
+            $third = new \stdClass(),
+        ));
+
+        $closure = function ($key, $element) {
+            if (isset($element->id)) return $element;
+        };
+        $actual = $this->collection->partition($closure);
+        $this->assertCount(2, $actual);
+        $this->assertContainsOnlyInstancesOf(get_class($this->collection), $actual);
+        $this->assertSame(array($second), $actual[0]->toArray());
+        $this->assertSame(array($first, $third), $actual[1]->toArray());
+    }
+
+    /**
+     * @depends testShouldAddTheSupportedObject
+     * @ticket #17
+     */
+    public function testShouldReturnTheMapOfElementsReturnedByClosureOnAnExtendedCollection()
+    {
+        $this->collection = new ExtendedStubCollection(array(
+            $first = new \stdClass(),
+            $second = (object) array('id' => 1),
+            $third = new \stdClass(),
+        ));
+
+        $expected = array(1 => $second);
+        $closure = function ($element) {
+            if (isset($element->id)) return $element;
+        };
+        $newCollection = $this->collection->map($closure);
+        $this->assertInstanceOf(__NAMESPACE__ . '\ExtendedStubCollection', $newCollection);
+        $this->assertSame($expected, $newCollection->toArray());
+        $this->assertCount(3, $this->collection);
+        $this->assertContainsOnlyInstancesOf('stdClass', $this->collection);
+    }
+
+    /**
+     * @ticket #17
+     */
+    public function testAddShouldThrowExceptionWhenTypeNotDefinedByExtendedCollection()
+    {
+        $this->assertExceptionForInvalidSupportedTypeGivenIsThrown();
+        $collection = new BadExtendedCollectionStub();
+        $collection->add(new \stdClass());
+    }
+
+    /**
+     * @ticket #17
+     */
+    public function testCountShouldThrowExceptionWhenTypeNotDefinedByExtendedCollection()
+    {
+        $this->assertExceptionForInvalidSupportedTypeGivenIsThrown();
+        $collection = new BadExtendedCollectionStub();
+        $collection->count();
+    }
+
+    /**
+     * @ticket #17
+     */
+    public function testGetIteratorShouldThrowExceptionWhenTypeNotDefinedByExtendedCollection()
+    {
+        $this->assertExceptionForInvalidSupportedTypeGivenIsThrown();
+        $collection = new BadExtendedCollectionStub();
+        $collection->getIterator();
+    }
+
+    /**
+     * @ticket #17
+     */
+    public function testClearShouldThrowExceptionWhenTypeNotDefinedByExtendedCollection()
+    {
+        $this->assertExceptionForInvalidSupportedTypeGivenIsThrown();
+        $collection = new BadExtendedCollectionStub();
+        $collection->clear();
+    }
+
+    /**
+     * @ticket #17
+     */
+    public function testContainsShouldThrowExceptionWhenTypeNotDefinedByExtendedCollection()
+    {
+        $this->assertExceptionForInvalidSupportedTypeGivenIsThrown();
+        $collection = new BadExtendedCollectionStub();
+        $collection->contains(new stdClass());
+    }
+
+    /**
+     * @ticket #17
+     */
+    public function testIsEmptyShouldThrowExceptionWhenTypeNotDefinedByExtendedCollection()
+    {
+        $this->assertExceptionForInvalidSupportedTypeGivenIsThrown();
+        $collection = new BadExtendedCollectionStub();
+        $collection->isEmpty();
+    }
+
+    /**
+     * @ticket #17
+     */
+    public function testRemoveShouldThrowExceptionWhenTypeNotDefinedByExtendedCollection()
+    {
+        $this->assertExceptionForInvalidSupportedTypeGivenIsThrown();
+        $collection = new BadExtendedCollectionStub();
+        $collection->remove('');
+    }
+
+    /**
+     * @ticket #17
+     */
+    public function testRemoveElementShouldThrowExceptionWhenTypeNotDefinedByExtendedCollection()
+    {
+        $this->assertExceptionForInvalidSupportedTypeGivenIsThrown();
+        $collection = new BadExtendedCollectionStub();
+        $collection->removeElement('');
+    }
+
+    /**
+     * @ticket #17
+     */
+    public function testContainsKeyShouldThrowExceptionWhenTypeNotDefinedByExtendedCollection()
+    {
+        $this->assertExceptionForInvalidSupportedTypeGivenIsThrown();
+        $collection = new BadExtendedCollectionStub();
+        $collection->containsKey('');
+    }
+
+    /**
+     * @ticket #17
+     */
+    public function testGetShouldThrowExceptionWhenTypeNotDefinedByExtendedCollection()
+    {
+        $this->assertExceptionForInvalidSupportedTypeGivenIsThrown();
+        $collection = new BadExtendedCollectionStub();
+        $collection->get('');
+    }
+
+    /**
+     * @ticket #17
+     */
+    public function testGetKeysShouldThrowExceptionWhenTypeNotDefinedByExtendedCollection()
+    {
+        $this->assertExceptionForInvalidSupportedTypeGivenIsThrown();
+        $collection = new BadExtendedCollectionStub();
+        $collection->getKeys();
+    }
+
+    /**
+     * @ticket #17
+     */
+    public function testGetValuesShouldThrowExceptionWhenTypeNotDefinedByExtendedCollection()
+    {
+        $this->assertExceptionForInvalidSupportedTypeGivenIsThrown();
+        $collection = new BadExtendedCollectionStub();
+        $collection->getValues();
+    }
+
+    /**
+     * @ticket #17
+     */
+    public function testSetShouldThrowExceptionWhenTypeNotDefinedByExtendedCollection()
+    {
+        $this->assertExceptionForInvalidSupportedTypeGivenIsThrown();
+        $collection = new BadExtendedCollectionStub();
+        $collection->set('key', 'value');
+    }
+
+    /**
+     * @ticket #17
+     */
+    public function testToArrayShouldThrowExceptionWhenTypeNotDefinedByExtendedCollection()
+    {
+        $this->assertExceptionForInvalidSupportedTypeGivenIsThrown();
+        $collection = new BadExtendedCollectionStub();
+        $collection->toArray();
+    }
+
+    /**
+     * @ticket #17
+     */
+    public function testFirstShouldThrowExceptionWhenTypeNotDefinedByExtendedCollection()
+    {
+        $this->assertExceptionForInvalidSupportedTypeGivenIsThrown();
+        $collection = new BadExtendedCollectionStub();
+        $collection->first();
+    }
+
+    /**
+     * @ticket #17
+     */
+    public function testLastShouldThrowExceptionWhenTypeNotDefinedByExtendedCollection()
+    {
+        $this->assertExceptionForInvalidSupportedTypeGivenIsThrown();
+        $collection = new BadExtendedCollectionStub();
+        $collection->last();
+    }
+
+    /**
+     * @ticket #17
+     */
+    public function testKeyShouldThrowExceptionWhenTypeNotDefinedByExtendedCollection()
+    {
+        $this->assertExceptionForInvalidSupportedTypeGivenIsThrown();
+        $collection = new BadExtendedCollectionStub();
+        $collection->key();
+    }
+
+    /**
+     * @ticket #17
+     */
+    public function testCurrentShouldThrowExceptionWhenTypeNotDefinedByExtendedCollection()
+    {
+        $this->assertExceptionForInvalidSupportedTypeGivenIsThrown();
+        $collection = new BadExtendedCollectionStub();
+        $collection->current();
+    }
+
+    /**
+     * @ticket #17
+     */
+    public function testNextShouldThrowExceptionWhenTypeNotDefinedByExtendedCollection()
+    {
+        $this->assertExceptionForInvalidSupportedTypeGivenIsThrown();
+        $collection = new BadExtendedCollectionStub();
+        $collection->next();
+    }
+
+    /**
+     * @ticket #17
+     */
+    public function testExistsShouldThrowExceptionWhenTypeNotDefinedByExtendedCollection()
+    {
+        $this->assertExceptionForInvalidSupportedTypeGivenIsThrown();
+        $collection = new BadExtendedCollectionStub();
+        $collection->exists(function () {});
+    }
+
+    /**
+     * @ticket #17
+     */
+    public function testFilterShouldThrowExceptionWhenTypeNotDefinedByExtendedCollection()
+    {
+        $this->assertExceptionForInvalidSupportedTypeGivenIsThrown();
+        $collection = new BadExtendedCollectionStub();
+        $collection->filter(function () {});
+    }
+
+    /**
+     * @ticket #17
+     */
+    public function testForAllShouldThrowExceptionWhenTypeNotDefinedByExtendedCollection()
+    {
+        $this->assertExceptionForInvalidSupportedTypeGivenIsThrown();
+        $collection = new BadExtendedCollectionStub();
+        $collection->forAll(function () {});
+    }
+
+    /**
+     * @ticket #17
+     */
+    public function testMapShouldThrowExceptionWhenTypeNotDefinedByExtendedCollection()
+    {
+        $this->assertExceptionForInvalidSupportedTypeGivenIsThrown();
+        $collection = new BadExtendedCollectionStub();
+        $collection->map(function () {});
+    }
+
+    /**
+     * @ticket #17
+     */
+    public function testPartitionShouldThrowExceptionWhenTypeNotDefinedByExtendedCollection()
+    {
+        $this->assertExceptionForInvalidSupportedTypeGivenIsThrown();
+        $collection = new BadExtendedCollectionStub();
+        $collection->partition(function () {});
+    }
+
+    /**
+     * @ticket #17
+     */
+    public function testIndexOfShouldThrowExceptionWhenTypeNotDefinedByExtendedCollection()
+    {
+        $this->assertExceptionForInvalidSupportedTypeGivenIsThrown();
+        $collection = new BadExtendedCollectionStub();
+        $collection->indexOf('');
+    }
+
+    /**
+     * @ticket #17
+     */
+    public function testSliceShouldThrowExceptionWhenTypeNotDefinedByExtendedCollection()
+    {
+        $this->assertExceptionForInvalidSupportedTypeGivenIsThrown();
+        $collection = new BadExtendedCollectionStub();
+        $collection->slice('', 8);
+    }
+
+    /**
+     * @ticket #17
+     */
+    public function testOffsetExistsShouldThrowExceptionWhenTypeNotDefinedByExtendedCollection()
+    {
+        $this->assertExceptionForInvalidSupportedTypeGivenIsThrown();
+        $collection = new BadExtendedCollectionStub();
+        $collection->offsetExists(8);
+    }
+
+    /**
+     * @ticket #17
+     */
+    public function testOffsetGetShouldThrowExceptionWhenTypeNotDefinedByExtendedCollection()
+    {
+        $this->assertExceptionForInvalidSupportedTypeGivenIsThrown();
+        $collection = new BadExtendedCollectionStub();
+        $collection->offsetGet(8);
+    }
+
+    /**
+     * @ticket #17
+     */
+    public function testOffsetSetShouldThrowExceptionWhenTypeNotDefinedByExtendedCollection()
+    {
+        $this->assertExceptionForInvalidSupportedTypeGivenIsThrown();
+        $collection = new BadExtendedCollectionStub();
+        $collection->offsetSet(8, '');
+    }
+
+    /**
+     * @ticket #17
+     */
+    public function testOffsetUnsetShouldThrowExceptionWhenTypeNotDefinedByExtendedCollection()
+    {
+        $this->assertExceptionForInvalidSupportedTypeGivenIsThrown();
+        $collection = new BadExtendedCollectionStub();
+        $collection->offsetUnset(8);
+    }
+
+    /**
+     * @ticket #17
+     */
+    public function testMatchingShouldThrowExceptionWhenTypeNotDefinedByExtendedCollection()
+    {
+        $this->assertExceptionForInvalidSupportedTypeGivenIsThrown();
+        $collection = new BadExtendedCollectionStub();
+        $collection->matching(new Criteria());
+    }
+
+    private function assertExceptionForInvalidSupportedTypeGivenIsThrown()
+    {
+        $this->setExpectedException(
+            'Star\Component\Collection\Exception\InvalidArgumentException',
+            'The supported type should be given on construct.'
+        );
+    }
+}
+
+class ExtendedStubCollection extends TypedCollection
+{
+    public function __construct(array $elements = array())
+    {
+        parent::__construct('\stdClass', $elements);
+    }
+
+    public function findByObject(\stdClass $object)
+    {
+        $closure = function($class) use ($object) {
+            return $class->id == $object->id;
+        };
+
+        return $this->filter($closure)->first();
+    }
+
+    protected function create(array $elements = array())
+    {
+        return new self($elements);
+    }
+}
+
+class BadExtendedCollectionStub extends TypedCollection
+{
+    public function __construct()
+    {
+        // Should define a type
     }
 }

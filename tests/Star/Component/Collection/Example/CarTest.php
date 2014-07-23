@@ -21,21 +21,39 @@ class CarTest extends \PHPUnit_Framework_TestCase
      */
     private $color;
 
+    /**
+     * @var Car
+     */
+    private $car;
+
+    /**
+     * @var Passenger
+     */
+    private $passenger;
+
     public function setUp()
     {
         $this->color = new Color(1);
+        $this->car = new Car('name', $this->color);
+        $this->passenger = new Passenger(2, 'driver');
     }
 
     public function testShouldHaveAColor()
     {
-        $car = new Car('name', $this->color);
-        $this->assertEquals($this->color, $car->getColor());
+        $this->assertEquals($this->color, $this->car->getColor());
     }
 
     public function testShouldHaveAName()
     {
-        $car = new Car('name', $this->color);
-        $this->assertSame('name', $car->getName());
+        $this->assertSame('name', $this->car->getName());
+    }
+
+    public function testShouldHavePassengers()
+    {
+        $this->assertInstanceOf(__NAMESPACE__ . '\PassengerCollection' , $this->car->getPassengers());
+        $this->assertCount(0, $this->car->getPassengers());
+        $this->car->embark($this->passenger);
+        $this->assertCount(1, $this->car->getPassengers());
     }
 }
  

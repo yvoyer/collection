@@ -37,17 +37,15 @@ class TypedCollection implements Collection, Selectable
 
     /**
      * @param string $type
-     * @param array  $elements
+     * @param array $elements
+     *
+     * @throws Exception\InvalidArgumentException
      */
     public function __construct($type, array $elements = array())
     {
-        if (false === class_exists($type)) {
-            if (false === interface_exists($type)) {
-                throw new InvalidArgumentException("The class/interface '{$type}' must exists.");
-            }
-        }
-
         $this->type = $type;
+        $this->guardAgainstInvalidGivenType();
+
         $this->collection = new ArrayCollection();
         foreach ($elements as $element) {
             $this->add($element);
@@ -79,6 +77,7 @@ class TypedCollection implements Collection, Selectable
      */
     public function count()
     {
+        $this->guardAgainstInvalidGivenType();
         return $this->collection->count();
     }
 
@@ -91,6 +90,7 @@ class TypedCollection implements Collection, Selectable
      */
     public function getIterator()
     {
+        $this->guardAgainstInvalidGivenType();
         return $this->collection->getIterator();
     }
 
@@ -101,6 +101,7 @@ class TypedCollection implements Collection, Selectable
      */
     public function clear()
     {
+        $this->guardAgainstInvalidGivenType();
         $this->collection->clear();
     }
 
@@ -114,6 +115,7 @@ class TypedCollection implements Collection, Selectable
      */
     public function contains($element)
     {
+        $this->guardAgainstInvalidGivenType();
         return $this->collection->contains($element);
     }
 
@@ -124,6 +126,7 @@ class TypedCollection implements Collection, Selectable
      */
     public function isEmpty()
     {
+        $this->guardAgainstInvalidGivenType();
         return $this->collection->isEmpty();
     }
 
@@ -136,6 +139,7 @@ class TypedCollection implements Collection, Selectable
      */
     public function remove($key)
     {
+        $this->guardAgainstInvalidGivenType();
         return $this->collection->remove($key);
     }
 
@@ -148,6 +152,7 @@ class TypedCollection implements Collection, Selectable
      */
     public function removeElement($element)
     {
+        $this->guardAgainstInvalidGivenType();
         return $this->collection->removeElement($element);
     }
 
@@ -161,6 +166,7 @@ class TypedCollection implements Collection, Selectable
      */
     public function containsKey($key)
     {
+        $this->guardAgainstInvalidGivenType();
         return $this->collection->containsKey($key);
     }
 
@@ -173,6 +179,7 @@ class TypedCollection implements Collection, Selectable
      */
     public function get($key)
     {
+        $this->guardAgainstInvalidGivenType();
         return $this->collection->get($key);
     }
 
@@ -184,6 +191,7 @@ class TypedCollection implements Collection, Selectable
      */
     public function getKeys()
     {
+        $this->guardAgainstInvalidGivenType();
         return $this->collection->getKeys();
     }
 
@@ -195,6 +203,7 @@ class TypedCollection implements Collection, Selectable
      */
     public function getValues()
     {
+        $this->guardAgainstInvalidGivenType();
         return $this->collection->getValues();
     }
 
@@ -220,6 +229,7 @@ class TypedCollection implements Collection, Selectable
      */
     public function toArray()
     {
+        $this->guardAgainstInvalidGivenType();
         return $this->collection->toArray();
     }
 
@@ -230,6 +240,7 @@ class TypedCollection implements Collection, Selectable
      */
     public function first()
     {
+        $this->guardAgainstInvalidGivenType();
         return $this->collection->first();
     }
 
@@ -240,6 +251,7 @@ class TypedCollection implements Collection, Selectable
      */
     public function last()
     {
+        $this->guardAgainstInvalidGivenType();
         return $this->collection->last();
     }
 
@@ -250,6 +262,7 @@ class TypedCollection implements Collection, Selectable
      */
     public function key()
     {
+        $this->guardAgainstInvalidGivenType();
         return $this->collection->key();
     }
 
@@ -260,6 +273,7 @@ class TypedCollection implements Collection, Selectable
      */
     public function current()
     {
+        $this->guardAgainstInvalidGivenType();
         return $this->collection->current();
     }
 
@@ -270,6 +284,7 @@ class TypedCollection implements Collection, Selectable
      */
     public function next()
     {
+        $this->guardAgainstInvalidGivenType();
         return $this->collection->next();
     }
 
@@ -282,6 +297,7 @@ class TypedCollection implements Collection, Selectable
      */
     public function exists(Closure $p)
     {
+        $this->guardAgainstInvalidGivenType();
         return $this->collection->exists($p);
     }
 
@@ -295,8 +311,19 @@ class TypedCollection implements Collection, Selectable
      */
     public function filter(Closure $p)
     {
+        $this->guardAgainstInvalidGivenType();
         $elements = $this->collection->filter($p)->toArray();
 
+        return $this->create($elements);
+    }
+
+    /**
+     * @param array $elements
+     *
+     * @return self
+     */
+    protected function create(array $elements = array())
+    {
         return new static($this->type, $elements);
     }
 
@@ -309,6 +336,7 @@ class TypedCollection implements Collection, Selectable
      */
     public function forAll(Closure $p)
     {
+        $this->guardAgainstInvalidGivenType();
         return $this->collection->forAll($p);
     }
 
@@ -322,8 +350,9 @@ class TypedCollection implements Collection, Selectable
      */
     public function map(Closure $func)
     {
+        $this->guardAgainstInvalidGivenType();
         $elements = $this->collection->map($func)->toArray();
-        $newCollection = new TypedCollection($this->type);
+        $newCollection = $this->create();
         foreach ($elements as $key => $element) {
             try {
                 $newCollection->set($key, $element);
@@ -347,11 +376,12 @@ class TypedCollection implements Collection, Selectable
      */
     public function partition(Closure $p)
     {
+        $this->guardAgainstInvalidGivenType();
         $partition = $this->collection->partition($p);
 
         return array(
-            new static($this->type, $partition[0]->toArray()),
-            new static($this->type, $partition[1]->toArray()),
+            $this->create($partition[0]->toArray()),
+            $this->create($partition[1]->toArray()),
         );
     }
 
@@ -366,6 +396,7 @@ class TypedCollection implements Collection, Selectable
      */
     public function indexOf($element)
     {
+        $this->guardAgainstInvalidGivenType();
         return $this->collection->indexOf($element);
     }
 
@@ -383,6 +414,7 @@ class TypedCollection implements Collection, Selectable
      */
     public function slice($offset, $length = null)
     {
+        $this->guardAgainstInvalidGivenType();
         return $this->collection->slice($offset, $length);
     }
 
@@ -400,6 +432,7 @@ class TypedCollection implements Collection, Selectable
      */
     public function offsetExists($offset)
     {
+        $this->guardAgainstInvalidGivenType();
         return isset($this->collection[$offset]);
     }
 
@@ -414,6 +447,7 @@ class TypedCollection implements Collection, Selectable
      */
     public function offsetGet($offset)
     {
+        $this->guardAgainstInvalidGivenType();
         return $this->collection[$offset];
     }
 
@@ -446,6 +480,7 @@ class TypedCollection implements Collection, Selectable
      */
     public function offsetUnset($offset)
     {
+        $this->guardAgainstInvalidGivenType();
         unset($this->collection[$offset]);
     }
 
@@ -455,6 +490,8 @@ class TypedCollection implements Collection, Selectable
      */
     private function assertElementIsOfType($element)
     {
+        $this->guardAgainstInvalidGivenType();
+
         if (false === $element instanceof $this->type) {
             throw new InvalidArgumentException("The collection only supports adding {$this->type}.");
         }
@@ -468,10 +505,24 @@ class TypedCollection implements Collection, Selectable
      *
      * @return Collection
      */
-    function matching(Criteria $criteria)
+    public function matching(Criteria $criteria)
     {
+        $this->guardAgainstInvalidGivenType();
         $elements = $this->collection->matching($criteria)->toArray();
 
-        return new static($this->type, $elements);
+        return $this->create($elements);
+    }
+
+    private function guardAgainstInvalidGivenType()
+    {
+        if (empty($this->type)) {
+            throw new InvalidArgumentException('The supported type should be given on construct.');
+        }
+
+        if (false === class_exists($this->type)) {
+            if (false === interface_exists($this->type)) {
+                throw new InvalidArgumentException("The class/interface '{$this->type}' must exists.");
+            }
+        }
     }
 }

@@ -17,6 +17,7 @@ use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Tester\CommandTester;
 use tests\Star\Component\Collection\Example\Car;
 use tests\Star\Component\Collection\Example\Color;
+use tests\Star\Component\Collection\Example\Passenger;
 use tests\Star\Component\Collection\Example\Wheel;
 
 /**
@@ -41,6 +42,7 @@ class DoctrineTest extends \PHPUnit_Framework_TestCase
         $classes = array(
             $em->getClassMetadata(Car::CLASS_NAME),
             $em->getClassMetadata(Wheel::CLASS_NAME),
+            $em->getClassMetadata(Passenger::CLASS_NAME),
         );
 
         $tool = new SchemaTool($em);
@@ -87,6 +89,42 @@ class DoctrineTest extends \PHPUnit_Framework_TestCase
         $this->assertInstanceOf('Doctrine\ORM\PersistentCollection', $newCar->getWheels());
     }
 
+    public function testShouldPersistPassenger()
+    {
+        $passenger = new Passenger(-1, 'my-name');
+        $em = self::$doctrine->getEntityManager();
+        $em->persist($passenger);
+        $em->flush();
+        $em->clear();
+        $newPassenger = $this->findPassenger(1);
+
+        $this->assertInstanceOf(Passenger::CLASS_NAME, $newPassenger);
+        $this->assertSame('my-name', $newPassenger->getName());
+        $this->assertSame(1, $newPassenger->getId());
+    }
+
+    public function testShouldPersistTheCollectionOfPassenger()
+    {
+        $car = $this->findCar(1);
+        $passenger = $this->findPassenger(1);
+
+        $this->assertInstanceOf(Car::CLASS_NAME, $car);
+        $this->assertInstanceOf(Passenger::CLASS_NAME, $passenger);
+
+        $car->embark($passenger);
+        $this->assertCount(1, $car->getPassengers());
+
+        $em = self::$doctrine->getEntityManager();
+        $em->persist($car);
+        $em->flush();
+        $em->clear();
+
+        $refreshCar = $this->findCar(1);
+        $this->assertInstanceOf(Car::CLASS_NAME, $refreshCar);
+        $this->assertInstanceOf('tests\Star\Component\Collection\Example\PassengerCollection', $refreshCar->getPassengers());
+        $this->assertCount(1, $refreshCar->getPassengers());
+    }
+
     /**
      * @param $carId
      *
@@ -100,6 +138,16 @@ class DoctrineTest extends \PHPUnit_Framework_TestCase
         $car = self::$doctrine->getEntityManager()->getRepository(Car::CLASS_NAME)->find($carId);
 
         return $car;
+    }
+
+    /**
+     * @param int $id
+     *
+     * @return Passenger
+     */
+    private function findPassenger($id)
+    {
+        return self::$doctrine->getEntityManager()->getRepository(Passenger::CLASS_NAME)->find($id);
     }
 }
  

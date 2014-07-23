@@ -42,6 +42,11 @@ class Car
     private $wheels;
 
     /**
+     * @var PassengerCollection
+     */
+    private $passengers;
+
+    /**
      * @param string $name
      * @param Color  $color
      */
@@ -50,6 +55,7 @@ class Car
         $this->name = $name;
         $this->color = (string) $color;
         $this->wheels = new TypedCollection(Wheel::CLASS_NAME);
+        $this->passengers = new PassengerCollection();
     }
 
     /**
@@ -97,6 +103,25 @@ class Car
     public function getName()
     {
         return $this->name;
+    }
+
+    /**
+     * @param Passenger $passenger
+     */
+    public function embark(Passenger $passenger)
+    {
+        $passenger->setCar($this);
+        $this->passengers->add($passenger);
+    }
+
+    /**
+     * Returns the Passengers.
+     *
+     * @return \tests\Star\Component\Collection\Example\PassengerCollection
+     */
+    public function getPassengers()
+    {
+        return new PassengerCollection($this->passengers->toArray());
     }
 }
  

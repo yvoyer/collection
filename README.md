@@ -145,5 +145,3 @@ added functionality, but you need to make sure that the following steps are resp
             return new CustomCollection($this->myElements->toArray());
         }
     }
-
-

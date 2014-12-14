@@ -1,6 +1,6 @@
 <?php
 /**
- * This file is part of the collection.local project.
+ * This file is part of the StarCollection project.
  *
  * (c) Yannick Voyer (http://github.com/yvoyer)
  */
@@ -8,12 +8,13 @@
 namespace Star\Component\Collection\Exception;
 
 /**
- * Class UnsupportedValueException
+ * Class StarCollectionException
  *
  * @author  Yannick Voyer (http://github.com/yvoyer)
  *
  * @package Star\Component\Collection\Exception
  */
-class UnsupportedValueException extends InvalidArgumentException implements StarCollectionException
+interface StarCollectionException
 {
+    const INTERFACE_NAME = __CLASS__;
 }

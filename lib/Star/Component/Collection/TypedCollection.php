@@ -236,23 +236,23 @@ class TypedCollection implements Collection, Selectable
     /**
      * Sets the internal iterator to the first element in the collection and returns this element.
      *
-     * @return mixed
+     * @return null|mixed The first element or null when the element is not found
      */
     public function first()
     {
         $this->guardAgainstInvalidGivenType();
-        return $this->collection->first();
+        return $this->collection->first() ?: null;
     }
 
     /**
      * Sets the internal iterator to the last element in the collection and returns this element.
      *
-     * @return mixed
+     * @return null|mixed The first element or null when the element is not found
      */
     public function last()
     {
         $this->guardAgainstInvalidGivenType();
-        return $this->collection->last();
+        return $this->collection->last() ?: null;
     }
 
     /**

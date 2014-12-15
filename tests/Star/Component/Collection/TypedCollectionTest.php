@@ -227,6 +227,9 @@ class TypedCollectionTest extends StarCollectionTestCase
      */
     public function testShouldReturnTheElementsBasedOnPosition()
     {
+        $this->assertNull($this->collection->first());
+        $this->assertNull($this->collection->last());
+
         $this->collection->add($firstElement = new \stdClass());
         $this->collection->add($secondElement = new \stdClass());
 

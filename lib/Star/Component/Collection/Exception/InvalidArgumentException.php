@@ -1,7 +1,7 @@
 <?php
 /**
  * This file is part of the collection.local project.
- * 
+ *
  * (c) Yannick Voyer (http://github.com/yvoyer)
  */
 
@@ -14,7 +14,6 @@ namespace Star\Component\Collection\Exception;
  *
  * @package Star\Component\Collection\Exception
  */
-class InvalidArgumentException extends \Exception
+class InvalidArgumentException extends \Exception implements StarCollectionException
 {
 }
- 

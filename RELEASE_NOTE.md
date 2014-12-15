@@ -1,3 +1,8 @@
+1.3.0
+=====
+
+* Add unique identity collection to ensure unique object in collection.
+
 1.2.0
 =====
 

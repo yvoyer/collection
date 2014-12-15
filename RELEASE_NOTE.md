@@ -2,6 +2,7 @@
 =====
 
 * Add unique identity collection to ensure unique object in collection.
+* Return null instead of false on last() and first()
 
 1.2.0
 =====

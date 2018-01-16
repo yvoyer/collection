@@ -1,5 +1,6 @@
 {
     "name": "star/collection",
+    "license": "MIT",
     "description": "Collection utility lib",
     "minimum-stability": "stable",
     "authors": [
@@ -20,5 +21,7 @@
             "": ["lib", ""]
         }
     },
-    "license": "MIT"
+    "config": {
+        "bin-dir": "bin"
+    }
 }

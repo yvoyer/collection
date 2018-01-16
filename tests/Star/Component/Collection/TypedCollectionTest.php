@@ -382,13 +382,17 @@ class TypedCollectionTest extends StarCollectionTestCase
         $this->collection->add($second = (object) array('id' => 1));
         $this->collection->add($third = new \stdClass());
 
-        $expected = array(1 => $second);
+        $expected = array(
+            0 => null,
+            1 => $second,
+            2 => null,
+        );
         $closure = function ($element) {
             if (isset($element->id)) return $element;
         };
         $newCollection = $this->collection->map($closure);
-        $this->assertInstanceOf(self::COLLECTION_TYPE, $newCollection);
-        $this->assertSame($expected, $newCollection->toArray());
+        $this->assertInstanceOf('Doctrine\Common\Collections\Collection', $newCollection);
+        $this->assertEquals($expected, $newCollection->toArray());
         $this->assertCount(3, $this->collection);
         $this->assertContainsOnlyInstancesOf('stdClass', $this->collection);
     }
@@ -483,13 +487,17 @@ class TypedCollectionTest extends StarCollectionTestCase
             $third = new \stdClass(),
         ));
 
-        $expected = array(1 => $second);
+        $expected = array(
+            0 => null,
+            1 => $second,
+            2 => null,
+        );
         $closure = function ($element) {
             if (isset($element->id)) return $element;
         };
         $newCollection = $this->collection->map($closure);
-        $this->assertInstanceOf(__NAMESPACE__ . '\ExtendedStubCollection', $newCollection);
-        $this->assertSame($expected, $newCollection->toArray());
+        $this->assertInstanceOf('Doctrine\Common\Collections\Collection', $newCollection);
+        $this->assertEquals($expected, $newCollection->toArray());
         $this->assertCount(3, $this->collection);
         $this->assertContainsOnlyInstancesOf('stdClass', $this->collection);
     }
@@ -810,6 +818,17 @@ class TypedCollectionTest extends StarCollectionTestCase
             'Star\Component\Collection\Exception\InvalidArgumentException',
             'The supported type should be given on construct.'
         );
+    }
+
+    public function test_it_should_throw_an_exception_when_mapping_with_wrong_type()
+    {
+        $collection = new TypedCollection('\stdClass', [new stdClass()]);
+        $new = $collection->map(function (stdClass $class) {
+            return 'not an stdClass';
+        });
+        $this->assertCount(1, $new);
+        $this->assertInstanceOf('Doctrine\Common\Collections\Collection', $new);
+        $this->assertSame('not an stdClass', $new[0]);
     }
 }
 

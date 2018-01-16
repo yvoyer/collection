@@ -298,13 +298,17 @@ final class IdentityCollectionTest extends \PHPUnit_Framework_TestCase
         $this->collection->add($this->identity2);
         $this->collection->add($this->identity3);
 
-        $expected = array($this->identity2);
+        $expected = array(
+            0 => false,
+            1 => true,
+            2 => false,
+        );
         $closure = function (UniqueIdentity $element) {
-            if ($element->uid()->id() == 2) return $element;
+            return $element->uid()->id() == 2;
         };
         $newCollection = $this->collection->map($closure);
-        $this->assertInstanceOf(IdentityCollection::CLASS_NAME, $newCollection);
-        $this->assertSame($expected, $newCollection->toArray());
+        $this->assertInstanceOf('Doctrine\Common\Collections\Collection', $newCollection);
+        $this->assertEquals($expected, $newCollection->toArray());
     }
 
     public function test_should_partition_the_collection_in_two()

@@ -8,6 +8,7 @@
 namespace Star\Component\Collection;
 
 use Closure;
+use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Star\Component\Collection\Exception\DuplicatedIdentityException;
 use Star\Component\Collection\UniqueId\UniqueId;
@@ -311,11 +312,11 @@ class IdentityCollection implements Collection
      *
      * @param Closure $func
      *
-     * @return Collection
+     * @return Collection The returned collection is not typed anymore, since the values may not be of the class type.
      */
     public function map(Closure $func)
     {
-        return new static($this->type, $this->elements->map($func)->toArray());
+        return new ArrayCollection($this->elements->map($func)->getValues());
     }
 
     /**

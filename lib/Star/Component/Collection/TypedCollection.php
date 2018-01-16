@@ -346,22 +346,13 @@ class TypedCollection implements Collection, Selectable
      *
      * @param Closure $func
      *
-     * @return Collection
+     * @return Collection The returned collection is not typed anymore, since the values may not be of the class type.
      */
     public function map(Closure $func)
     {
         $this->guardAgainstInvalidGivenType();
-        $elements = $this->collection->map($func)->toArray();
-        $newCollection = $this->create();
-        foreach ($elements as $key => $element) {
-            try {
-                $newCollection->set($key, $element);
-            } catch (InvalidArgumentException $e) {
-                // do nothing, because the mapped item is not instance of type
-            }
-        }
 
-        return $newCollection;
+        return new ArrayCollection($this->collection->map($func)->getValues());
     }
 
     /**

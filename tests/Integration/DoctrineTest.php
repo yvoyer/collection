@@ -1,20 +1,14 @@
 <?php
 /**
  * This file is part of the StarCollection project.
- * 
+ *
  * (c) Yannick Voyer (http://github.com/yvoyer)
  */
 
 namespace tests\Integration;
 
-use Doctrine\DBAL\Connection;
-use Doctrine\ORM\EntityManager;
-use Doctrine\ORM\Tools\Console\Command\SchemaTool\CreateCommand;
-use Doctrine\ORM\Tools\Console\Command\SchemaTool\UpdateCommand;
 use Doctrine\ORM\Tools\SchemaTool;
-use Doctrine\ORM\Tools\Setup;
-use Symfony\Component\Console\Input\ArrayInput;
-use Symfony\Component\Console\Tester\CommandTester;
+use PHPUnit\Framework\TestCase;
 use tests\Star\Component\Collection\Example\Car;
 use tests\Star\Component\Collection\Example\Color;
 use tests\Star\Component\Collection\Example\Passenger;
@@ -27,7 +21,7 @@ use tests\Star\Component\Collection\Example\Wheel;
  *
  * @package tests\Integration
  */
-class DoctrineTest extends \PHPUnit_Framework_TestCase
+class DoctrineTest extends TestCase
 {
     /**
      * @var DoctrineTestSetup
@@ -150,4 +144,3 @@ class DoctrineTest extends \PHPUnit_Framework_TestCase
         return self::$doctrine->getEntityManager()->getRepository(Passenger::CLASS_NAME)->find($id);
     }
 }
- 

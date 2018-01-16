@@ -1,11 +1,13 @@
 <?php
 /**
  * This file is part of the StarCollection project.
- * 
+ *
  * (c) Yannick Voyer (http://github.com/yvoyer)
  */
 
 namespace tests\Star\Component\Collection\Example;
+
+use PHPUnit\Framework\TestCase;
 
 /**
  * Class CatTest
@@ -14,7 +16,7 @@ namespace tests\Star\Component\Collection\Example;
  *
  * @package tests\Star\Component\Collection\Example
  */
-class CarTest extends \PHPUnit_Framework_TestCase
+class CarTest extends TestCase
 {
     /**
      * @var Color
@@ -56,4 +58,3 @@ class CarTest extends \PHPUnit_Framework_TestCase
         $this->assertCount(1, $this->car->getPassengers());
     }
 }
- 

@@ -103,7 +103,9 @@ class TypedCollectionTest extends StarCollectionTestCase
 
     public function testShouldBeIteratableByForeach()
     {
-        $this->element = $this->getMock('\stdClass', array('method'));
+        $this->element = $this->getMockBuilder('\stdClass')
+            ->setMethods(array('method'))
+            ->getMock();
         $this->element
             ->expects($this->once())
             ->method('method');
@@ -433,7 +435,7 @@ class TypedCollectionTest extends StarCollectionTestCase
     public function testShouldSupportInterface()
     {
         $this->collection = new TypedCollection('\Countable');
-        $this->collection->add($this->getMock('\Countable'));
+        $this->collection->add($this->createMock('\Countable'));
         $this->assertCount(1, $this->collection);
     }
 
@@ -806,8 +808,10 @@ class TypedCollectionTest extends StarCollectionTestCase
 
     private function assertExceptionForInvalidSupportedTypeGivenIsThrown()
     {
-        $this->setExpectedException(
-            'Star\Component\Collection\Exception\InvalidArgumentException',
+        $this->expectException(
+            'Star\Component\Collection\Exception\InvalidArgumentException'
+        );
+        $this->expectExceptionMessage(
             'The supported type should be given on construct.'
         );
     }

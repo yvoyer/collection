@@ -1,11 +1,13 @@
 <?php
 /**
  * This file is part of the StarCollection project.
- * 
+ *
  * (c) Yannick Voyer (http://github.com/yvoyer)
  */
 
 namespace tests\Star\Component\Collection\Example;
+
+use PHPUnit\Framework\TestCase;
 
 /**
  * Class PassengerTest
@@ -14,7 +16,7 @@ namespace tests\Star\Component\Collection\Example;
  *
  * @package tests\Star\Component\Collection\Example
  */
-class PassengerTest extends \PHPUnit_Framework_TestCase
+class PassengerTest extends TestCase
 {
     /**
      * @var Passenger
@@ -38,10 +40,9 @@ class PassengerTest extends \PHPUnit_Framework_TestCase
 
     public function testShouldReturnTheCar()
     {
-        $car = $this->getMock(Car::CLASS_NAME, array(), array(), '', false);
+        $car = $this->createMock(Car::CLASS_NAME, array(), array(), '', false);
         $this->assertNull($this->passenger->getCar());
         $this->passenger->setCar($car);
         $this->assertSame($car, $this->passenger->getCar());
     }
 }
- 

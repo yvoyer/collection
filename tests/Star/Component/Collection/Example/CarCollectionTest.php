@@ -7,6 +7,8 @@
 
 namespace tests\Star\Component\Collection\Example;
 
+use PHPUnit\Framework\TestCase;
+
 /**
  * Class CarCollectionTest
  *
@@ -14,7 +16,7 @@ namespace tests\Star\Component\Collection\Example;
  *
  * @package tests\Star\Component\Collection\Example
  */
-class CarCollectionTest extends \PHPUnit_Framework_TestCase
+class CarCollectionTest extends TestCase
 {
     /**
      * @var CarCollection
@@ -54,4 +56,3 @@ class CarCollectionTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('green-car', $car->getName());
     }
 }
- 

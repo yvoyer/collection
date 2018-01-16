@@ -1,11 +1,13 @@
 <?php
 /**
  * This file is part of the collection.local project.
- * 
+ *
  * (c) Yannick Voyer (http://github.com/yvoyer)
  */
 
 namespace tests\Star\Component;
+
+use PHPUnit\Framework\TestCase;
 
 /**
  * Class StarCollectionTestCase
@@ -14,7 +16,7 @@ namespace tests\Star\Component;
  *
  * @package tests\Star\Component
  */
-class StarCollectionTestCase extends \PHPUnit_Framework_TestCase
+class StarCollectionTestCase extends TestCase
 {
     /**
      * @param $object
@@ -24,4 +26,3 @@ class StarCollectionTestCase extends \PHPUnit_Framework_TestCase
         $this->assertInstanceOf('Doctrine\Common\Collections\Collection', $object);
     }
 }
- 

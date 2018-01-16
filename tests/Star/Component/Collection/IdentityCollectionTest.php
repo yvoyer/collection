@@ -7,6 +7,7 @@
 
 namespace tests\Star\Component\Collection;
 
+use PHPUnit\Framework\TestCase;
 use Star\Component\Collection\IdentityCollection;
 use Star\Component\Collection\UniqueId\ConfigurableId;
 use Star\Component\Collection\UniqueIdentity;
@@ -18,7 +19,7 @@ use Star\Component\Collection\UniqueIdentity;
  *
  * @package tests\Star\Component\Collection
  */
-final class IdentityCollectionTest extends \PHPUnit_Framework_TestCase
+final class IdentityCollectionTest extends TestCase
 {
     /**
      * @var IdentityCollection
@@ -42,19 +43,19 @@ final class IdentityCollectionTest extends \PHPUnit_Framework_TestCase
 
     public function setUp()
     {
-        $this->identity1 = $this->getMock(UniqueIdentity::INTERFACE_NAME);
+        $this->identity1 = $this->createMock(UniqueIdentity::INTERFACE_NAME);
         $this->identity1
             ->expects($this->any())
             ->method('uId')
             ->will($this->returnValue(new ConfigurableId(1)));
 
-        $this->identity2 = $this->getMock(UniqueIdentity::INTERFACE_NAME);
+        $this->identity2 = $this->createMock(UniqueIdentity::INTERFACE_NAME);
         $this->identity2
             ->expects($this->any())
             ->method('uId')
             ->will($this->returnValue(new ConfigurableId(2)));
 
-        $this->identity3 = $this->getMock(UniqueIdentity::INTERFACE_NAME);
+        $this->identity3 = $this->createMock(UniqueIdentity::INTERFACE_NAME);
         $this->identity3
             ->expects($this->any())
             ->method('uId')
